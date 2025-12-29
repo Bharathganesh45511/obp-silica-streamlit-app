@@ -81,7 +81,37 @@ rmse = mse ** 0.5
 st.subheader("Model Performance")
 st.write(f"R² Score: {r2:.3f}")
 st.write(f"RMSE: {rmse:.3f}")
+# =============================
+# METALLURGICAL DIAGNOSTIC PLOTS
+# =============================
 
+st.subheader("Feed SiO₂ vs Concentrate SiO₂")
+
+plot_df = df[['feed_sio2_pct', 'concentrate_sio2_pct']].dropna()
+
+st.scatter_chart(
+    plot_df,
+    x='feed_sio2_pct',
+    y='concentrate_sio2_pct'
+)
+st.subheader("−45 µm Fraction vs Concentrate SiO₂")
+
+plot_df = df[['minus_45micron_pct', 'concentrate_sio2_pct']].dropna()
+
+st.scatter_chart(
+    plot_df,
+    x='minus_45micron_pct',
+    y='concentrate_sio2_pct'
+)
+st.subheader("−10 µm Fraction vs Concentrate SiO₂")
+
+plot_df = df[['minus_10micron_pct', 'concentrate_sio2_pct']].dropna()
+
+st.scatter_chart(
+    plot_df,
+    x='minus_10micron_pct',
+    y='concentrate_sio2_pct'
+)
 # -----------------------------
 # USER INPUT
 # -----------------------------
@@ -112,6 +142,7 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
+
 
 
 
