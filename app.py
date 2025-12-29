@@ -14,9 +14,7 @@ st.title("OBP Concentrate Silica Prediction App")
 # -----------------------------
 @st.cache
 def load_data():
-df = pd.read_csv("OBP_Silica_Cleaned_Data.csv",
-    sheet_name="Sheet1"
-)
+    df = pd.read_csv("OBP_Silica_Cleaned_Data.csv")
     return df
 
 # -----------------------------
@@ -112,4 +110,5 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
+
 
