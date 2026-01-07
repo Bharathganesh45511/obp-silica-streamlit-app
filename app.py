@@ -116,7 +116,7 @@ st.scatter_chart(
 st.subheader("Enter Feed & PSD Values")
 
 feed_fe = st.number_input("Feed Fe (%)", 50.0, 65.0, 55.0)
-feed_sio2 = st.number_input("Feed SiO₂ (%)", 5.0, 15.0, 10.0)
+feed_sio2 = st.number_input("Feed SiO₂ (%)", 5.0, 25.0, 10.0)
 feed_al2o3 = st.number_input("Feed Al₂O₃ (%)", 2.0, 8.0, 4.5)
 feed_loi = st.number_input("Feed LOI (%)", 2.0, 8.0, 4.5)
 
@@ -140,6 +140,7 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
+
 
 
 
