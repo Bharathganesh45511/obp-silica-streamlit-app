@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 
@@ -14,7 +14,10 @@ st.title("OBP Concentrate Silica Prediction App")
 # -----------------------------
 @st.cache
 def load_data():
-    df = pd.read_csv("OBP_Silica_Cleaned_Data.csv")
+    df = pd.read_excel(
+    "OBP_Silica_Cleaned_Data.xlsx",
+    sheet_name="Sheet1"
+)
     return df
 
 # -----------------------------
@@ -65,51 +68,27 @@ y = df[target]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
-model = LinearRegression()
+
+model = RandomForestRegressor(
+    n_estimators=300,
+    max_depth=6,
+    min_samples_split=5,
+    random_state=42
+)
+
 model.fit(X_train, y_train)
+
 # -----------------------------
 # MODEL PERFORMANCE
 # -----------------------------
 y_pred = model.predict(X_test)
 r2 = r2_score(y_test, y_pred)
-mse = mean_squared_error(y_test, y_pred)
-rmse = mse ** 0.5
-
+rmse = mean_squared_error(y_test, y_pred, squared=False)
 
 st.subheader("Model Performance")
 st.write(f"R² Score: {r2:.3f}")
 st.write(f"RMSE: {rmse:.3f}")
-# =============================
-# METALLURGICAL DIAGNOSTIC PLOTS
-# =============================
 
-st.subheader("Feed SiO₂ vs Concentrate SiO₂")
-
-plot_df = df[['feed_sio2_pct', 'concentrate_sio2_pct']].dropna()
-
-st.scatter_chart(
-    plot_df,
-    x='feed_sio2_pct',
-    y='concentrate_sio2_pct'
-)
-st.subheader("−45 µm Fraction vs Concentrate SiO₂")
-
-plot_df = df[['minus_45micron_pct', 'concentrate_sio2_pct']].dropna()
-
-st.scatter_chart(
-    plot_df,
-    x='minus_45micron_pct',
-    y='concentrate_sio2_pct'
-)
-st.subheader("−10 µm Fraction vs Concentrate SiO₂")
-
-plot_df = df[['minus_10micron_pct', 'concentrate_sio2_pct']].dropna()
-
-st.scatter_chart(
-    plot_df,
-    x='minus_10micron_pct',
-    y='concentrate_sio2_pct'
-)
 # -----------------------------
 # USER INPUT
 # -----------------------------
@@ -140,11 +119,3 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
-
-
-
-
-
-
-
-
