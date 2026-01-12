@@ -1,3 +1,4 @@
+import numpy as np
 import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -83,7 +84,7 @@ model.fit(X_train, y_train)
 # -----------------------------
 y_pred = model.predict(X_test)
 r2 = r2_score(y_test, y_pred)
-rmse = mean_squared_error(y_test, y_pred, squared=False)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
 st.subheader("Model Performance")
 st.write(f"R² Score: {r2:.3f}")
@@ -119,5 +120,6 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
+
 
 
