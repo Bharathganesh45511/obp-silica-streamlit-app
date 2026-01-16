@@ -1,23 +1,24 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+import numpy as np
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 
 # -----------------------------
 # PAGE TITLE
 # -----------------------------
-st.title("OBP Concentrate Silica Prediction App")
+st.title("OBP Concentrate Silica Prediction App (Linear Regression)")
 
 # -----------------------------
 # LOAD DATA FUNCTION
 # -----------------------------
-@st.cache
+@st.cache_data
 def load_data():
     df = pd.read_excel(
-    "OBP_Silica_Cleaned_Data.xlsx",
-    sheet_name="Sheet1"
-)
+        "OBP_Silica_Cleaned_Data.xlsx",
+        sheet_name="Sheet1"
+    )
     return df
 
 # -----------------------------
@@ -26,7 +27,7 @@ def load_data():
 df = load_data()
 
 # -----------------------------
-# DEFINE FEATURES & TARGET  ✅ VERY IMPORTANT
+# DEFINE FEATURES & TARGET
 # -----------------------------
 features = [
     'feed_fe_pct',
@@ -41,23 +42,17 @@ features = [
 target = 'concentrate_sio2_pct'
 
 # -----------------------------
-# DATA CLEANING (STEP 1 & STEP 2)
+# DATA CLEANING
 # -----------------------------
-# Replace plant symbols like '-' with NaN
 df = df.replace('-', pd.NA)
 
-# Convert columns to numeric
 for col in features + [target]:
     df[col] = pd.to_numeric(df[col], errors='coerce')
 
-# Drop rows without target
 df = df.dropna(subset=[target])
-# -----------------------------
-# FINAL STEP: FILL NaN IN INPUT FEATURES
-# -----------------------------
+
 for col in features:
     df[col] = df[col].fillna(df[col].mean())
-
 
 # -----------------------------
 # MODEL PREPARATION
@@ -69,25 +64,16 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-model = RandomForestRegressor(
-    n_estimators=300,
-    max_depth=6,
-    min_samples_split=5,
-    random_state=42
-)
-
+model = LinearRegression()
 model.fit(X_train, y_train)
 
 # -----------------------------
 # MODEL PERFORMANCE
 # -----------------------------
 y_pred = model.predict(X_test)
+
 r2 = r2_score(y_test, y_pred)
-import numpy as np
-from sklearn.metrics import mean_squared_error
-
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
 
 st.subheader("Model Performance")
 st.write(f"R² Score: {r2:.3f}")
@@ -111,7 +97,7 @@ minus_150 = st.number_input("-150 micron (%)", 80.0, 100.0, 93.0)
 # PREDICTION
 # -----------------------------
 if st.button("Predict Concentrate SiO₂"):
-    input_df = pd.DataFrame([[
+    input_df = pd.DataFrame([[ 
         feed_fe,
         feed_sio2,
         feed_al2o3,
@@ -123,4 +109,3 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
-
