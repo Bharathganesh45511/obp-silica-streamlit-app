@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -78,6 +79,48 @@ rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 st.subheader("Model Performance")
 st.write(f"R² Score: {r2:.3f}")
 st.write(f"RMSE: {rmse:.3f}")
+st.subheader("Predicted vs Actual Concentrate SiO₂")
+
+fig1, ax1 = plt.subplots()
+ax1.scatter(y_test, y_pred)
+ax1.plot(
+    [y_test.min(), y_test.max()],
+    [y_test.min(), y_test.max()],
+    linestyle='--'
+)
+
+ax1.set_xlabel("Actual Concentrate SiO₂ (%)")
+ax1.set_ylabel("Predicted Concentrate SiO₂ (%)")
+ax1.set_title("Variance Explained by Feed Chemistry & PSD")
+
+st.pyplot(fig1)
+st.subheader("Residual Analysis (Beneficiation Stability)")
+
+residuals = y_test - y_pred
+
+fig2, ax2 = plt.subplots()
+ax2.scatter(y_pred, residuals)
+ax2.axhline(0, linestyle='--')
+
+ax2.set_xlabel("Predicted Concentrate SiO₂ (%)")
+ax2.set_ylabel("Residual (Actual − Predicted)")
+ax2.set_title("Residual Distribution – Classification & Liberation")
+
+st.pyplot(fig2)
+st.subheader("Influence of Process Variables on Concentrate SiO₂")
+
+coef_df = pd.DataFrame({
+    "Parameter": features,
+    "Coefficient": model.coef_
+}).sort_values(by="Coefficient")
+
+fig3, ax3 = plt.subplots()
+ax3.barh(coef_df["Parameter"], coef_df["Coefficient"])
+ax3.set_xlabel("Regression Coefficient")
+ax3.set_title("Beneficiation Parameter Influence (Linear Regression)")
+
+st.pyplot(fig3)
+
 
 # -----------------------------
 # USER INPUT
@@ -109,3 +152,4 @@ if st.button("Predict Concentrate SiO₂"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"Predicted Concentrate SiO₂: {prediction:.2f} %")
+
